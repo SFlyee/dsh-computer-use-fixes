@@ -1,0 +1,18 @@
+dsh-computer-use-fixes
+======================
+
+本仓库是 dsh-computer-use 的社区修复分支（fork）：
+
+  上游项目：https://github.com/988hj7tczd-oss/dsh-computer-use
+  上游许可证：MIT（见 LICENSE 中的原始版权声明）
+
+原项目版权归 988hj7tczd-oss/dsh-computer-use 的贡献者所有；
+本分支的修改同样以 MIT 许可证发布。
+
+本分支新增/修改的内容包括：真实指针隔离（前台投递后立即还原）、Chromium CDP
+浏览器通道、常驻 MCP 引擎通道、元素优先点击、单段缓动滑行、screen_desktop 工具，
+以及若干稳健性修复。逐项说明见 CHANGELOG.md。
+
+This repository is a community fork of dsh-computer-use (https://github.com/988hj7tczd-oss/dsh-computer-use).
+The upstream project is MIT-licensed; this fork keeps the original copyright
+notice and is released under the same MIT license. See CHANGELOG.md.
