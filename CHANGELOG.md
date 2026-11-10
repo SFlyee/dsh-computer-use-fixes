@@ -3,6 +3,17 @@
 本仓库是 [dsh-computer-use](https://github.com/988hj7tczd-oss/dsh-computer-use)（MIT）的社区修复分支。
 0.4.0 记录相对上游 0.3.2 的全部本地修复；0.4.1 为文档同步；0.4.2 重点修掉宿主依赖的安装坑。
 
+## [0.4.3] - 2026-11-10
+
+- **修复 MCP 通道截图丢失**：`get_window_state` 走常驻 MCP 时，引擎把截图放在 MCP 的
+  `content` image 块里，`structuredContent` 不含 `screenshot_png_b64`，导致插件拿到空图
+  （`native` / `vision` / `screen_zoom` 全部报 "Image is empty"）。现在 `engine.js` 会把
+  image 块解码回 `screenshot_png_b64`（并从 PNG IHDR 补齐宽高），与 CLI 通道形状一致。
+- **像素路径默认前台可见投递**：Electron/Chromium 内容会丢弃后台 PostMessage，后台点击
+  只有 `effect=unverifiable`，表现为"点了没反应"。现在 `actions.js` 的像素点击（无元素 token、
+  用户未显式指定 `delivery`）默认走前台投递：虚拟光标先滑行到目标，再真实点击；
+  真实指针仍由指针守卫立即还原。元素 token / 自动晋升路径保持 UIA 后台点击（不碰真实指针）。
+- 测试：cursor-isolation 更新 H5（像素路径前台可见投递）与 Z9（守卫读指针次数），共 **173** 项。
 ## [0.4.2] - 2026-11-10
 
 - **修复「插件装完 DSH 起不来」的根因**：不再把宿主内部包 `@deepseek-ai/dsh-tools` 声明为

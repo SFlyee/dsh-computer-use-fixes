@@ -676,14 +676,18 @@ try {
   check('H4e 守卫 restored=true（复核偏差 ≤3px）', gH.restored === true, JSON.stringify(gH))
   check('H4f 守卫 after=null（不做复核判定）', gH.after === null, fmt(gH.after))
 
-  // H5（回归 C1）：前台点击之后紧接着的后台点击，不得复用上一次的守卫记录误报
-  //「已放回原位」（守卫状态是模块级共享的，humanAction 入口必须重置）。
+  // H5（0.4.3 起）：actions.js 的**像素路径默认前台可见投递**（避免 Electron/Chromium
+  // 后台点击"点了没反应"）。守卫状态仍须在 humanAction 入口重置：本次要读取「当前」指针
+  // 位置（501,402）并完成还原，不能复用上一次的 500,400。
   resetCalls()
   const r5 = await actions.click({ x: 30, y: 40 }, CFG)
-  check('H5a 后台点击结果不再误报"已放回原位"/"未能确认已还原"',
-    !/已放回原位/.test(r5.result) && !/未能确认已还原/.test(r5.result), String(r5.result).slice(0, 200))
-  check('H5b 后台点击没有 desktop 还原调用',
-    !moveCalls().some((c) => c.args.scope === 'desktop'), `move=${moveCalls().length}`)
+  check('H5a 像素路径默认前台可见投递（文案标注"像素路径" + 投递=foreground）',
+    /像素路径/.test(r5.result) && /投递=foreground/.test(r5.result), String(r5.result).slice(0, 220))
+  check('H5b 指针位置是本次重新读取的（501,402），不复用上次的 500,400',
+    /已放回原位（501,402）/.test(r5.result), String(r5.result).slice(0, 240))
+  check('H5c 像素路径：滑行 + desktop 还原 + repark = 3 次 move_cursor（还原恰好 1 次）',
+    moveCalls().length === 3 && moveCalls().filter((c) => c.args.scope === 'desktop').length === 1,
+    `move=${moveCalls().length}`)
 
   // ══════════════════════════════════════════════════════════════════
   // Z. 全局审计：载荷形状合法、绝不 scope+target 并存、click 不带 scope
@@ -721,8 +725,8 @@ try {
   check('Z8 审计中只出现 move_cursor / set_agent_cursor_motion / click / get_cursor_position（无其它引擎调用泄漏）',
     audit.every((c) => ['move_cursor', 'set_agent_cursor_motion', 'click', 'get_cursor_position'].includes(c.tool)),
     [...new Set(audit.map((c) => c.tool))].join(','))
-  check('Z9 只有前台/守卫路径读指针（本套件共 5 次：D 1 + E 1 + G2 1 + I1 1 + H4 1），后台点击 0 次',
-    reads.length === 5, `实际 ${reads.length}`)
+  check('Z9 只有前台/守卫路径读指针（本套件共 6 次：D 1 + E 1 + G2 1 + I1 1 + H4 1 + H5 1），纯后台/token 路径 0 次',
+    reads.length === 6, `实际 ${reads.length}`)
 
   // 恢复生产默认注入点（证明测试没有污染默认值）
   human.deps.cuaCall = cuaCall
