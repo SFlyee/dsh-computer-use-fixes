@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check
+        run: node tools/check.mjs
+      - name: Offline unit tests (stubbed engine, no real mouse)
+        run: |
+          node tests/cursor-isolation.mjs
+          node tests/element-first.mjs
+          node tests/browser-cdp.mjs
+      - name: Theme generator sanity
+        run: |
+          python3 tools/make_theme.py --output /tmp/theme.lottie
+          python3 -c "import zipfile,json; z=zipfile.ZipFile('/tmp/theme.lottie'); assert json.loads(z.read('cua/theme.json'))['id']=='com.dsh.computeruse.rainbow'; print('theme OK')"
+      - name: Check whitespace errors
+        run: git diff --check
