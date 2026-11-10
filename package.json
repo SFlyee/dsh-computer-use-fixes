@@ -1,6 +1,6 @@
 {
   "name": "dsh-computer-use-fixes",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "dshLocalFixes": true,
   "description": "dsh-computer-use-fixes：dsh-computer-use 的社区修复分支（fork）。独立虚拟光标真人操作 + Chromium CDP 浏览器通道 + 常驻 MCP 引擎通道 + 元素优先点击 + 单段缓动滑行，13 个模型友好工具。",
   "type": "module",
