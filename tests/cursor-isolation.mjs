@@ -689,8 +689,46 @@ try {
     moveCalls().length === 3 && moveCalls().filter((c) => c.args.scope === 'desktop').length === 1,
     `move=${moveCalls().length}`)
 
-  // ══════════════════════════════════════════════════════════════════
-  // Z. 全局审计：载荷形状合法、绝不 scope+target 并存、click 不带 scope
+  // H6（0.4.3）：computer_type replace —— CEF 输入框里 ctrl+a 会被吞成字面字符，
+  // 所以 replace 走「三连击全选 + 前台输入」，且三连击本身也走指针守卫。
+  const h6Human = []
+  const prevHumanClick = actions.deps.humanClick
+  actions.deps.humanClick = async (opts) => { h6Human.push(opts); return { effect: 'ok' } }
+  const h6Calls = []
+  const h6Call = async (tool, args = {}) => {
+    h6Calls.push({ tool, args: { ...args } })
+    return { effect: 'ok', delivery: { mode: 'foreground' } }
+  }
+  let h6 = null
+  try {
+    h6 = await actions.typeText(
+      { text: '周杰伦 晴天', x: 10, y: 20, replace: true },
+      CFG,
+      { call: h6Call, resolve: () => ({ pid: PID, windowId: WID }) },
+    )
+  } finally {
+    actions.deps.humanClick = prevHumanClick
+  }
+  check('H6a replace 先单击聚焦（count=1 + preferForeground + 指针守卫）',
+    h6Human.length === 1 && h6Human[0].count === 1 && h6Human[0].preferForeground === true
+      && h6Human[0].x === 10 && h6Human[0].y === 20 && h6Human[0].restorePointer === true,
+    JSON.stringify(h6Human[0] || null))
+  const h6Hotkey = h6Calls.find((c) => c.tool === 'hotkey')
+  check('H6b replace 用 ctrl+a 全选（前台投递）',
+    !!h6Hotkey && Array.isArray(h6Hotkey.args.keys)
+      && h6Hotkey.args.keys.join('+') === 'ctrl+a'
+      && h6Hotkey.args.window_id === WID && h6Hotkey.args.delivery_mode === 'foreground',
+    JSON.stringify(h6Hotkey?.args || null))
+  const h6Type = h6Calls.find((c) => c.tool === 'type_text')
+  check('H6c 随后前台输入：text + window_id + delivery_mode=foreground，且不再重复点击（无 x/y/token）',
+    !!h6Type && h6Type.args.text === '周杰伦 晴天' && h6Type.args.window_id === WID
+      && h6Type.args.delivery_mode === 'foreground' && !('x' in h6Type.args)
+      && !('element_token' in h6Type.args),
+    JSON.stringify(h6Type?.args || null))
+  check('H6d 结果文案标注 replace 模式', h6.ok === true && /replace 模式/.test(String(h6.result)),
+    String(h6?.result || '').slice(0, 160))
+
+
   // ══════════════════════════════════════════════════════════════════
   console.log('\n── Z. 全局审计：所有引擎载荷的形状 ──')
   const allMoves = audit.filter((c) => c.tool === 'move_cursor')

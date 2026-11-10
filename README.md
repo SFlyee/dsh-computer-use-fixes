@@ -21,7 +21,7 @@
 | **元素优先** | 坐标点击命中按钮/菜单/链接等可调用元素时，自动改用 UIA 元素调用 | 不碰真实指针、不抢焦点，后台窗口也能点 |
 | **单段缓动滑行** | 去掉插件侧 6 段弧线插值，改为一次 `move_cursor` = 引擎一段 240ms 定时缓动 | 光标不再绕圈；远距离滑行从 ~2.4s 降到 240ms |
 | **第 13 个工具** | 新增 `screen_desktop`（整屏截图，含虚拟光标） | 跨窗口/多屏任务更方便 |
-| **0.4.3 通道修复** | MCP 通道截图归一到 `screenshot_png_b64`（修 native/vision/zoom 空图）；像素点击默认前台可见投递（修 Electron 静默无效点击） |
+| **0.4.3 通道修复** | MCP 通道截图归一到 `screenshot_png_b64`（修 native/vision/zoom 空图）；像素点击默认前台可见投递（修 Electron 静默无效点击）；`computer_type` 支持 `replace`（点击聚焦 + ctrl+a 全选 + 前台替换，失败自动回退 Backspace 清空）与 `x/y` 像素定位 |
 | **稳健性** | token 失效自愈、快照过期拒绝、会话自愈、观察链路修复、引擎拒绝形状识别 | 长时运行更稳，失败原因更明确 |
 
 逐项细节见 [CHANGELOG.md](CHANGELOG.md)；引擎行为依据（探针数据）见 [docs/engine-notes.md](docs/engine-notes.md)。
@@ -74,7 +74,7 @@
 
 ```bash
 npm run check   # 12 个文件的语法检查
-npm test        # 173 项离线回归（引擎桩化，不碰真实鼠标）
+npm test        # 177 项离线回归（引擎桩化，不碰真实鼠标）
 ```
 
 - CI：每次 push / PR 自动跑上面两项 + 主题生成 sanity；

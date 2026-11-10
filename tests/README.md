@@ -5,7 +5,7 @@
 
 | 脚本 | 覆盖点 | 检查数 |
 |---|---|---|
-| `cursor-isolation.mjs` | 虚拟光标滑行载荷、真实指针守卫（读指针/立即还原/复停）、`restorePointer:false`、token 路径、actions.js 集成、全局载荷审计 | 121 |
+| `cursor-isolation.mjs` | 虚拟光标滑行载荷、真实指针守卫（读指针/立即还原/复停）、`restorePointer:false`、token 路径、actions.js 集成、全局载荷审计 | 125 |
 | `element-first.mjs` | 元素矩形换算、按钮/菜单/链接/中文角色命中、编辑区不晋升、`preferElement:false`、vision 快照 | 21 |
 | `browser-cdp.mjs` | CDP 识别/拒绝形状、绑定缓存、页面快照、click/type/scroll 载荷、ref 失效自愈、降级 | 31 |
 

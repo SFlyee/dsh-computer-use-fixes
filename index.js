@@ -336,10 +336,16 @@ export function apply(ctx, config) {
 
   ctx.tools.register(defineTool({
     name: 'computer_type',
-    description: '文本输入：向当前焦点（或指定元素）输入一段文本。Chromium 网页元素（CDP 快照里有 [编号]）走浏览器调试协议输入，不用键盘/鼠标。注意：不要在密码框使用——密码必须由用户本人输入（敏感输入保护）。',
+    description:
+      '文本输入：向当前焦点（或指定元素 / 像素坐标）输入一段文本。Chromium 网页元素（CDP 快照里有 [编号]）走浏览器调试协议输入，不用键盘/鼠标。' +
+      'replace=true 时先全选再输入（替换原内容）：对 Electron/CEF 自定义输入框用三连击全选（这类控件里 ctrl+a 常被吞成字面字符），再前台输入替换。' +
+      '注意：不要在密码框使用——密码必须由用户本人输入（敏感输入保护）。',
     parameters: {
       text: { type: 'string', required: true, description: '要输入的文本。' },
       element: TARGET_PARAMS.element,
+      x: { type: 'integer', description: '可选：窗口 PNG 像素 x（像素路径定位输入框，配合 y 使用）。' },
+      y: { type: 'integer', description: '可选：窗口 PNG 像素 y。' },
+      replace: { type: 'boolean', description: '可选：true = 先全选再输入（替换原内容），默认追加。' },
       delivery: TARGET_PARAMS.delivery,
     },
     output: OUT(),
